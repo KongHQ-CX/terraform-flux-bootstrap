@@ -61,7 +61,6 @@ resource "kubernetes_secret" "main" {
 }
 
 resource "github_branch_default" "main" {
-  provider   = github.global_cp
   repository = var.repository_name
   branch     = var.branch
 }
