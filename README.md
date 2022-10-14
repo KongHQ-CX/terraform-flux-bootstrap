@@ -10,7 +10,7 @@ The following will bootstrap the flux controller into an cluster
 
 ```HCL
 module "cluster_1_flux_bootstrap" {
-  source = "../../"
+  source = "KongHQ-CX/bootstrap/flux"
   provider = {
     kubernetes = kubernetes.cluster_1
     kubectl = kubectl.cluster_1
