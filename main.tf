@@ -38,15 +38,52 @@ resource "tls_private_key" "main" {
   ecdsa_curve = "P256"
 }
 
-resource "kubernetes_namespace" "flux_system" {
-  metadata {
-    name = "flux-system"
+
+# can not use this until https://github.com/fluxcd/terraform-provider-flux/issues/67 is fixed
+#resource "kubernetes_namespace" "flux_system" {
+#  metadata {
+#    name = "flux-system"
+#  }
+#
+#  lifecycle {
+#    ignore_changes = [
+#      metadata[0].labels,
+#    ]
+#  }
+#}
+
+# because of this issue: https://github.com/fluxcd/terraform-provider-flux/issues/67
+# we will create the namespace like this:
+resource "null_resource" "flux_namespace" {
+  triggers = {
+    namespace       = var.namespace
+    cluster_context = var.cluster_context
+    cluster_id      = var.cluster_id
+
   }
 
-  lifecycle {
-    ignore_changes = [
-      metadata[0].labels,
-    ]
+  provisioner "local-exec" {
+    command = "aws eks update-kubeconfig --name ${self.triggers.cluster_id}"
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl --context ${self.triggers.cluster_contex} create namespace ${self.triggers.namespace}"
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "aws eks update-kubeconfig --name ${self.triggers.cluster_id}"
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "kubectl --context ${self.triggers.cluster_context} delete namespace ${self.triggers.namespace} --cascade=true --wait=false && sleep 120"
+  }
+
+  provisioner "local-exec" {
+    when       = destroy
+    command    = "kubectl --context ${self.triggers.cluster_context} patch customresourcedefinition helmcharts.source.toolkit.fluxcd.io helmreleases.helm.toolkit.fluxcd.io helmrepositories.source.toolkit.fluxcd.io kustomizations.kustomize.toolkit.fluxcd.io -p '{\"metadata\":{\"finalizers\":null}}'"
+    on_failure = continue
   }
 }
 

@@ -32,3 +32,19 @@ variable "target_path" {
   type        = string
   default     = "gitops"
 }
+
+variable "cluster_context" {
+  description = "The context for the kubernetes cluster we are targeting"
+  type        = string
+}
+
+variable "cluster_id" {
+  description = "The ID for the kubernetes cluster we are targeting"
+  type        = string
+}
+
+variable "namespace" {
+  description = "The name space to deploy flux into"
+  type        = string
+  default     = "flux-system"
+}
