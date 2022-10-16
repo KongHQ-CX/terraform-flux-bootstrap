@@ -67,7 +67,7 @@ resource "null_resource" "flux_namespace" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl --context ${self.triggers.cluster_contex} create namespace ${self.triggers.namespace}"
+    command = "kubectl --context ${self.triggers.cluster_context} create namespace ${self.triggers.namespace}"
   }
 
   provisioner "local-exec" {
