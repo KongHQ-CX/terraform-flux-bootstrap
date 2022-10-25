@@ -63,7 +63,7 @@ resource "null_resource" "flux_namespace" {
   }
 
   provisioner "local-exec" {
-    command = "aws eks update-kubeconfig --name ${self.triggers.cluster_id}"
+    command = "aws eks update-kubeconfig --name ${self.triggers.cluster_id} --region ${var.region}"
   }
 
   provisioner "local-exec" {
@@ -72,7 +72,7 @@ resource "null_resource" "flux_namespace" {
 
   provisioner "local-exec" {
     when    = destroy
-    command = "aws eks update-kubeconfig --name ${self.triggers.cluster_id}"
+    command = "aws eks update-kubeconfig --name ${self.triggers.cluster_id} --region ${var.region}"
   }
 
   provisioner "local-exec" {
